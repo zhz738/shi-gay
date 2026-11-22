@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选公是给</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: #050208;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 900px;
+    cursor: default;
+    -webkit-user-select: none; user-select: none;
+  }
+
+  /* ---- aurora background blobs ---- */
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(90px); opacity: .55; mix-blend-mode: screen;
+    will-change: transform;
+  }
+  .blob.b1 { width: 55vmax; height: 55vmax; left: -15vmax; top: -15vmax;
+    background: radial-gradient(circle at 35% 35%, #ff2ea6, transparent 65%);
+    animation: drift1 26s ease-in-out infinite alternate; }
+  .blob.b2 { width: 50vmax; height: 50vmax; right: -12vmax; top: -10vmax;
+    background: radial-gradient(circle at 60% 40%, #2e7bff, transparent 65%);
+    animation: drift2 32s ease-in-out infinite alternate; }
+  .blob.b3 { width: 48vmax; height: 48vmax; left: 22vw; bottom: -22vmax;
+    background: radial-gradient(circle at 50% 50%, #8a2eff, transparent 65%);
+    animation: drift3 38s ease-in-out infinite alternate; }
+  .blob.b4 { width: 34vmax; height: 34vmax; right: 16vw; bottom: -8vmax;
+    background: radial-gradient(circle at 45% 45%, #00e0c6, transparent 62%);
+    animation: drift1 30s ease-in-out infinite alternate-reverse; }
+  @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(14vw, 9vh) scale(1.18); } }
+  @keyframes drift2 { from { transform: translate(0,0) scale(1.1); } to { transform: translate(-11vw, 13vh) scale(.92); } }
+  @keyframes drift3 { from { transform: translate(0,0) scale(.95); } to { transform: translate(-8vw, -11vh) scale(1.15); } }
+
+  /* slow hue rotation over everything colourful */
+  .hue { position: absolute; inset: 0; animation: hue 24s linear infinite; pointer-events: none; }
+  @keyframes hue { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
+
+  /* ---- stars / particles ---- */
+  #stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .star {
+    position: absolute; bottom: -2vh; border-radius: 50%;
+    background: #fff; opacity: 0;
+    animation: rise linear infinite;
+    box-shadow: 0 0 8px 2px rgba(255,255,255,.35);
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    8%   { opacity: .85; }
+    92%  { opacity: .6; }
+    100% { transform: translateY(-108vh) translateX(3vw); opacity: 0; }
+  }
+
+  /* ---- headline ---- */
+  .stage { position: relative; z-index: 5; text-align: center; transform-style: preserve-3d; will-change: transform; }
+  h1 {
+    display: flex; gap: .06em; justify-content: center;
+    font-size: clamp(64px, 17vw, 230px);
+    font-weight: 900; letter-spacing: .02em; line-height: 1.1;
+  }
+  h1 .ch {
+    display: inline-block;
+    background: linear-gradient(120deg, #ff2ea6, #ff8a3d, #ffe93d, #3dff7c, #2ec5ff, #8a2eff, #ff2ea6);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: flow 6s linear infinite, floaty 5.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 22px rgba(255, 90, 200, .45)) drop-shadow(0 14px 34px rgba(0,0,0,.55));
+  }
+  h1 .ch:nth-child(2) { animation-delay: -.9s, -1.3s; }
+  h1 .ch:nth-child(3) { animation-delay: -1.8s, -2.6s; }
+  h1 .ch:nth-child(4) { animation-delay: -2.7s, -3.9s; }
+  @keyframes flow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0) rotate(-1.1deg); }
+    50%      { transform: translateY(-.16em) rotate(1.1deg); }
+  }
+
+  /* reflection */
+  .reflect {
+    margin-top: .04em;
+    transform: scaleY(-1);
+    opacity: .20; filter: blur(3px) saturate(1.3);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 78%);
+            mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 78%);
+    pointer-events: none;
+  }
+  .reflect .ch { animation: flow 6s linear infinite; }
+
+  .tagline {
+    margin-top: 4.5vh;
+    color: rgba(255,255,255,.55);
+    font-size: clamp(12px, 2.2vw, 17px);
+    letter-spacing: .55em; text-indent: .55em; font-weight: 300;
+    animation: breathe 4.5s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%,100% { opacity: .35; } 50% { opacity: .8; } }
+
+  /* vignette */
+  .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 4;
+    background: radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.55) 100%); }
+</style>
+</head>
+<body>
+  <div class="hue">
+    <div class="blob b1"></div><div class="blob b2"></div>
+    <div class="blob b3"></div><div class="blob b4"></div>
+  </div>
+  <div id="stars"></div>
+  <div class="vignette"></div>
+
+  <div class="stage" id="stage">
+    <h1 id="title" aria-label="选公是给"></h1>
+    <h1 class="reflect" id="reflect" aria-hidden="true"></h1>
+    <div class="tagline">是 · gay</div>
+  </div>
+
+<script>
+  var TEXT = "选公是给";
+  function build(el) {
+    TEXT.split("").forEach(function (c) {
+      var s = document.createElement("span");
+      s.className = "ch"; s.textContent = c;
+      el.appendChild(s);
+    });
+  }
+  build(document.getElementById("title"));
+  build(document.getElementById("reflect"));
+
+  // rising particles
+  var box = document.getElementById("stars");
+  for (var i = 0; i < 42; i++) {
+    var st = document.createElement("div");
+    st.className = "star";
+    var size = (Math.random() * 3 + 1.5).toFixed(1);
+    st.style.width = size + "px"; st.style.height = size + "px";
+    st.style.left = (Math.random() * 100) + "vw";
+    st.style.animationDuration = (Math.random() * 10 + 9).toFixed(1) + "s";
+    st.style.animationDelay = (-Math.random() * 14).toFixed(1) + "s";
+    box.appendChild(st);
+  }
+
+  // gentle 3D tilt following the pointer
+  var stage = document.getElementById("stage"), rx = 0, ry = 0, tx = 0, ty = 0;
+  window.addEventListener("pointermove", function (e) {
+    tx = (e.clientX / window.innerWidth - .5) * 14;
+    ty = (e.clientY / window.innerHeight - .5) * -10;
+  });
+  (function loop() {
+    rx += (tx - rx) * .06; ry += (ty - ry) * .06;
+    stage.style.transform = "rotateY(" + rx.toFixed(2) + "deg) rotateX(" + ry.toFixed(2) + "deg)";
+    requestAnimationFrame(loop);
+  })();
+</script>
+</body>
+</html>
